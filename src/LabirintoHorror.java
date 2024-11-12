@@ -1,11 +1,16 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Stack;
 
 public class LabirintoHorror {
     private int m, n;
     private String[][] labirinto;
     private boolean[][] visitado;
-    private static final int[][] DIRECOES = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
+    private static final int[][] DIRECOES = { { -1, 0 }, { 0, 1 }, { 1, 0 }, { 0, -1 } };
     private Map<Character, Integer> contagemSeres;
 
     private static final Map<Character, String> SERES_NOMES = new HashMap<>();
@@ -41,15 +46,17 @@ public class LabirintoHorror {
     }
 
     public void identificarSeres() {
-        //System.out.println("Conteúdo de cada célula e posições das letras maiúsculas (seres) no labirinto:");
+        // System.out.println("Conteúdo de cada célula e posições das letras maiúsculas
+        // (seres) no labirinto:");
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
                 String cellValue = labirinto[i][j];
-                //System.out.println("Célula [" + i + "][" + j + "] contém: " + cellValue);
+                // System.out.println("Célula [" + i + "][" + j + "] contém: " + cellValue);
                 for (int k = 0; k < cellValue.length(); k++) {
                     char c = cellValue.charAt(k);
                     if (c >= 'A' && c <= 'F') {
-                        //System.out.println("Ser " + SERES_NOMES.get(c) + " (" + c + ") encontrado na posição [" + i + "][" + j + "]");
+                        // System.out.println("Ser " + SERES_NOMES.get(c) + " (" + c + ") encontrado na
+                        // posição [" + i + "][" + j + "]");
                     }
                 }
             }
@@ -68,10 +75,10 @@ public class LabirintoHorror {
                     explorarRegiaoIterativo(i, j, seresRegiao);
                     regioes++;
 
-
                     Character serMaisComumRegiao = obterSerMaisComumRegiao(seresRegiao);
                     if (serMaisComumRegiao != null) {
-                        System.out.println("Região " + regioes + ": Ser mais comum: " + SERES_NOMES.get(serMaisComumRegiao) + " (" + serMaisComumRegiao + ")");
+                        System.out.println("Região " + regioes + ": Ser mais comum: "
+                                + SERES_NOMES.get(serMaisComumRegiao) + " (" + serMaisComumRegiao + ")");
                     } else {
                         System.out.println("Região " + regioes + ": Nenhum ser encontrado");
                     }
@@ -85,23 +92,22 @@ public class LabirintoHorror {
 
         Character serMaisComumGeral = obterSerMaisComum();
         if (serMaisComumGeral != null) {
-            System.out.println("Ser mais comum em todo o labirinto: " + SERES_NOMES.get(serMaisComumGeral) + " (" + serMaisComumGeral + ")");
+            System.out.println("Ser mais comum em todo o labirinto: " + SERES_NOMES.get(serMaisComumGeral) + " ("
+                    + serMaisComumGeral + ")");
         } else {
             System.out.println("Nenhum ser encontrado em todo o labirinto");
         }
     }
 
-
     private void explorarRegiaoIterativo(int startX, int startY, Map<Character, Integer> seresRegiao) {
         Stack<int[]> stack = new Stack<>();
-        stack.push(new int[]{startX, startY});
+        stack.push(new int[] { startX, startY });
         visitado[startX][startY] = true;
 
         while (!stack.isEmpty()) {
             int[] pos = stack.pop();
             int x = pos[0];
             int y = pos[1];
-
 
             String cellValue = labirinto[x][y];
             for (int k = 0; k < cellValue.length(); k++) {
@@ -117,7 +123,7 @@ public class LabirintoHorror {
 
                 if (dentroDosLimites(nx, ny) && !visitado[nx][ny] && temConexao(x, y, nx, ny)) {
                     visitado[nx][ny] = true;
-                    stack.push(new int[]{nx, ny});
+                    stack.push(new int[] { nx, ny });
                 }
             }
         }
@@ -159,10 +165,14 @@ public class LabirintoHorror {
         boolean paredeInferiorVizinho = (valorVizinho & 2) != 0;
         boolean paredeEsquerdaVizinho = (valorVizinho & 1) != 0;
 
-        if (nx == x - 1) return !paredeSuperiorAtual && !paredeInferiorVizinho;
-        if (nx == x + 1) return !paredeInferiorAtual && !paredeSuperiorVizinho;
-        if (ny == y + 1) return !paredeDireitaAtual && !paredeEsquerdaVizinho;
-        if (ny == y - 1) return !paredeEsquerdaAtual && !paredeDireitaVizinho;
+        if (nx == x - 1)
+            return !paredeSuperiorAtual && !paredeInferiorVizinho;
+        if (nx == x + 1)
+            return !paredeInferiorAtual && !paredeSuperiorVizinho;
+        if (ny == y + 1)
+            return !paredeDireitaAtual && !paredeEsquerdaVizinho;
+        if (ny == y - 1)
+            return !paredeEsquerdaAtual && !paredeDireitaVizinho;
 
         return false;
     }
@@ -185,15 +195,5 @@ public class LabirintoHorror {
             return null;
         }
         return Collections.max(seresRegiao.entrySet(), Map.Entry.comparingByValue()).getKey();
-    }
-
-    public static void main(String[] args) {
-        try {
-            LabirintoHorror labirinto = new LabirintoHorror("caso6_7.txt");
-            labirinto.identificarSeres();
-            labirinto.contarRegioes();
-        } catch (IOException e) {
-            System.out.println("Erro ao ler o arquivo: " + e.getMessage());
-        }
     }
 }
