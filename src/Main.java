@@ -3,7 +3,7 @@ import java.io.IOException;
 public class Main {
     public static void main(String[] args) {
         try {
-            LabirintoHorror labirinto = new LabirintoHorror("caso6_7.txt");
+            LabirintoHorror labirinto = new LabirintoHorror("caso100.txt");
             labirinto.identificarSeres();
             labirinto.contarRegioes();
         } catch (IOException e) {
