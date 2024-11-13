@@ -7,6 +7,7 @@ public class Main {
             labirinto.identificarSeres();
             labirinto.contarRegioes();
         } catch (IOException e) {
+            // verificação padrão
             System.out.println("Erro ao ler o arquivo: " + e.getMessage());
         }
     }

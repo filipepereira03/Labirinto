@@ -10,9 +10,8 @@ public class LabirintoHorror {
     private int m, n;
     private String[][] labirinto;
     private boolean[][] visitado;
-    private static final int[][] DIRECOES = { { -1, 0 }, { 0, 1 }, { 1, 0 }, { 0, -1 } };
+    private final int[][] DIRECOES = { { -1, 0 }, { 0, 1 }, { 1, 0 }, { 0, -1 } };
     private Map<Character, Integer> contagemSeres;
-
     private static final Map<Character, String> SERES_NOMES = new HashMap<>();
     static {
         SERES_NOMES.put('A', "Anão");
@@ -23,12 +22,18 @@ public class LabirintoHorror {
         SERES_NOMES.put('F', "Feijão");
     }
 
+
+    // Construtor da classe LabirintoHorror
     public LabirintoHorror(String caminhoArquivo) throws IOException {
         lerArquivo(caminhoArquivo);
         this.visitado = new boolean[m][n];
         this.contagemSeres = new HashMap<>();
     }
 
+
+    // Método para ler o arquivo de entrada
+    // O arquivo de entrada deve estar no formato: .txt
+    // O arquivo de entrada deve conter as dimensões do labirinto (m x n) na primeira linha
     private void lerArquivo(String caminhoArquivo) throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(caminhoArquivo))) {
             String[] dimensoes = reader.readLine().split(" ");
@@ -38,13 +43,14 @@ public class LabirintoHorror {
 
             for (int i = 0; i < m; i++) {
                 String[] linha = reader.readLine().split(" ");
-                for (int j = 0; j < n; j++) {
-                    labirinto[i][j] = linha[j];
-                }
+                if (n >= 0) System.arraycopy(linha, 0, labirinto[i], 0, n);
             }
         }
     }
 
+    // Método para identificar os seres no labirinto
+    // O método percorre o labirinto e identifica as posições dos seres
+    // Os seres são identificados pelas letras maiúsculas de A a F
     public void identificarSeres() {
         // System.out.println("Conteúdo de cada célula e posições das letras maiúsculas
         // (seres) no labirinto:");
@@ -63,6 +69,10 @@ public class LabirintoHorror {
         }
     }
 
+    // Método para contar as regiões isoladas no labirinto
+    // O método percorre o labirinto e conta as regiões isoladas
+    // Uma região isolada é uma região onde não há conexão entre as células
+    // O método também identifica o ser mais comum em cada região e no labirinto
     public void contarRegioes() {
         int regioes = 0;
 
@@ -72,7 +82,7 @@ public class LabirintoHorror {
             for (int j = 0; j < n; j++) {
                 if (!visitado[i][j]) {
                     Map<Character, Integer> seresRegiao = new HashMap<>();
-                    explorarRegiaoIterativo(i, j, seresRegiao);
+                    explorarRegiao(i, j, seresRegiao);
                     regioes++;
 
                     Character serMaisComumRegiao = obterSerMaisComumRegiao(seresRegiao);
@@ -94,18 +104,20 @@ public class LabirintoHorror {
         if (serMaisComumGeral != null) {
             System.out.println("Ser mais comum em todo o labirinto: " + SERES_NOMES.get(serMaisComumGeral) + " ("
                     + serMaisComumGeral + ")");
-        } else {
-            System.out.println("Nenhum ser encontrado em todo o labirinto");
         }
     }
 
-    private void explorarRegiaoIterativo(int startX, int startY, Map<Character, Integer> seresRegiao) {
-        Stack<int[]> stack = new Stack<>();
-        stack.push(new int[] { startX, startY });
-        visitado[startX][startY] = true;
+    // Método para explorar uma região no labirinto
+    // O método utiliza uma pilha para percorrer as células da região
+    // O método utiliza um mapa para contar a quantidade de seres na região
 
-        while (!stack.isEmpty()) {
-            int[] pos = stack.pop();
+    private void explorarRegiao(int Ix, int Iy, Map<Character, Integer> seresRegiao) {
+        Stack<int[]> pilha = new Stack<>();
+        pilha.push(new int[] { Ix, Iy});
+        visitado[Ix][Iy] = true;
+
+        while (!pilha.isEmpty()) {
+            int[] pos = pilha.pop();
             int x = pos[0];
             int y = pos[1];
 
@@ -123,12 +135,14 @@ public class LabirintoHorror {
 
                 if (dentroDosLimites(nx, ny) && !visitado[nx][ny] && temConexao(x, y, nx, ny)) {
                     visitado[nx][ny] = true;
-                    stack.push(new int[] { nx, ny });
+                    pilha.push(new int[] { nx, ny });
                 }
             }
         }
     }
 
+
+    // Métodos auxiliares
     private boolean isSer(char c) {
         return c >= 'A' && c <= 'F';
     }
@@ -137,7 +151,7 @@ public class LabirintoHorror {
         return x >= 0 && x < m && y >= 0 && y < n;
     }
 
-    private int getWallValue(String cellValue) {
+    private int getParede(String cellValue) {
         for (int i = 0; i < cellValue.length(); i++) {
             char c = cellValue.charAt(i);
             if (Character.isDigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')) {
@@ -147,9 +161,13 @@ public class LabirintoHorror {
         return -1;
     }
 
+
+    // O método verifica se há uma conexão entre as células
+    // O método verifica se há uma parede entre as células
+    // O método retorna true se houver conexão entre as células e false caso contrário
     private boolean temConexao(int x, int y, int nx, int ny) {
-        int valorAtual = getWallValue(labirinto[x][y]);
-        int valorVizinho = getWallValue(labirinto[nx][ny]);
+        int valorAtual = getParede(labirinto[x][y]);
+        int valorVizinho = getParede(labirinto[nx][ny]);
 
         if (valorAtual == -1 || valorVizinho == -1) {
             return false;
@@ -177,12 +195,15 @@ public class LabirintoHorror {
         return false;
     }
 
+    // Métodos para atualizar e obter o ser mais comum
+    // O método atualizarSerMaisComum atualiza o mapa de contagem de seres
     private void atualizarSerMaisComum(Map<Character, Integer> seresRegiao) {
         for (Map.Entry<Character, Integer> entry : seresRegiao.entrySet()) {
             contagemSeres.put(entry.getKey(), contagemSeres.getOrDefault(entry.getKey(), 0) + entry.getValue());
         }
     }
 
+    // O método obterSerMaisComum retorna o ser mais comum no mapa de contagem de seres
     private Character obterSerMaisComum() {
         if (contagemSeres.isEmpty()) {
             return null;
@@ -190,6 +211,7 @@ public class LabirintoHorror {
         return Collections.max(contagemSeres.entrySet(), Map.Entry.comparingByValue()).getKey();
     }
 
+    // O método obterSerMaisComumRegiao retorna o ser mais comum no mapa de contagem de seres de uma região
     private Character obterSerMaisComumRegiao(Map<Character, Integer> seresRegiao) {
         if (seresRegiao.isEmpty()) {
             return null;
