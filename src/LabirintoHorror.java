@@ -74,7 +74,10 @@ public class LabirintoHorror {
     // Uma região isolada é uma região onde não há conexão entre as células
     // O método também identifica o ser mais comum em cada região e no labirinto
     public void contarRegioes() {
+        long inicio = System.currentTimeMillis();
+
         int regioes = 0;
+        int totalAparicoes = 0;
 
         contagemSeres = new HashMap<>();
         Character serMaisFrequenteEmUmaRegiao = null;
@@ -101,6 +104,11 @@ public class LabirintoHorror {
                         maiorFrequenciaEmUmaRegiao = frequenciaSerMaisComumRegiao;
                         serMaisFrequenteEmUmaRegiao = serMaisComumRegiao;
                     }
+
+                    for (Map.Entry<Character, Integer> entry : seresRegiao.entrySet()) {
+                        totalAparicoes += entry.getValue();
+                    }
+
                     atualizarSerMaisComum(seresRegiao);
                 }
             }
@@ -121,6 +129,16 @@ public class LabirintoHorror {
         } else {
             System.out.println("Nenhum ser encontrado no labirinto");
         }
+
+
+        System.out.println("Porcentagem de aparições de cada ser no labirinto:");
+        for (Map.Entry<Character, Integer> entry : contagemSeres.entrySet()) {
+            double porcentagem = (entry.getValue() / (double) totalAparicoes) * 100;
+            System.out.printf("%s (%c): %.2f%%%n", SERES_NOMES.get(entry.getKey()), entry.getKey(), porcentagem);
+        }
+
+        long fim = System.currentTimeMillis();
+        System.out.println("Tempo de execução: " + (fim - inicio) + " ms");
     }
 
     // Método para explorar uma região no labirinto
