@@ -77,6 +77,8 @@ public class LabirintoHorror {
         int regioes = 0;
 
         contagemSeres = new HashMap<>();
+        Character serMaisFrequenteEmUmaRegiao = null;
+        int maiorFrequenciaEmUmaRegiao = 0;
 
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
@@ -86,13 +88,19 @@ public class LabirintoHorror {
                     regioes++;
 
                     Character serMaisComumRegiao = obterSerMaisComumRegiao(seresRegiao);
+                    int frequenciaSerMaisComumRegiao = seresRegiao.getOrDefault(serMaisComumRegiao, 0);
+
                     if (serMaisComumRegiao != null) {
-                        System.out.println("Região " + regioes + ": Ser mais comum: "
-                                + SERES_NOMES.get(serMaisComumRegiao) + " (" + serMaisComumRegiao + ")");
+                        System.out.println("Região " + regioes + ": Ser mais comum: " + SERES_NOMES.get(serMaisComumRegiao)
+                                + " (" + serMaisComumRegiao + "), quantidade: " + frequenciaSerMaisComumRegiao);
                     } else {
                         System.out.println("Região " + regioes + ": Nenhum ser encontrado");
                     }
 
+                    if (frequenciaSerMaisComumRegiao > maiorFrequenciaEmUmaRegiao) {
+                        maiorFrequenciaEmUmaRegiao = frequenciaSerMaisComumRegiao;
+                        serMaisFrequenteEmUmaRegiao = serMaisComumRegiao;
+                    }
                     atualizarSerMaisComum(seresRegiao);
                 }
             }
@@ -100,10 +108,18 @@ public class LabirintoHorror {
 
         System.out.println("Número de regiões isoladas: " + regioes);
 
-        Character serMaisComumGeral = obterSerMaisComum();
-        if (serMaisComumGeral != null) {
-            System.out.println("Ser mais comum em todo o labirinto: " + SERES_NOMES.get(serMaisComumGeral) + " ("
-                    + serMaisComumGeral + ")");
+        if (serMaisFrequenteEmUmaRegiao != null) {
+            System.out.println("Ser com maior aparição em uma única região " + SERES_NOMES.get(serMaisFrequenteEmUmaRegiao)
+                    + " (" + serMaisFrequenteEmUmaRegiao + ") apareceu " + maiorFrequenciaEmUmaRegiao + " vezes");
+        } else {
+            System.out.println("Nenhum ser encontrado em uma única região");
+        }
+
+        Character serMaisComum = obterSerMaisComum();
+        if (serMaisComum != null) {
+            System.out.println("Ser mais comum no labirinto: " + SERES_NOMES.get(serMaisComum) + " (" + serMaisComum + ")");
+        } else {
+            System.out.println("Nenhum ser encontrado no labirinto");
         }
     }
 
